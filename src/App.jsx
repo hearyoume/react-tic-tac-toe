@@ -8,7 +8,8 @@ export default function App() {
 
   const hasGameStarted = squares.some((square) => square !== null);
 
-  const winner = calculateWinner(squares);
+  const { winner, line: winningLine } = calculateWinner(squares);
+
   const isTie = !winner && squares.every((square) => square !== null);
 
   const handleClick = (index) => {
@@ -56,6 +57,8 @@ export default function App() {
               value={squares[i]}
               // Parent manages the square's state and 🆔. Square is more presentational.
               onClick={() => handleClick(i)}
+              index={i}
+              winningLine={winningLine}
             />
           ))}
         </div>
@@ -77,12 +80,17 @@ export default function App() {
   );
 }
 
-function Square({ value, onClick }) {
+function Square({ value, onClick, index, winningLine }) {
+  const isWinningSquare = winningLine?.includes(index);
+
+  const baseClasses =
+    "w-16 h-16 flex items-center justify-center text-2xl font-bold border";
+  const winningClasses = isWinningSquare
+    ? "bg-green-500 ring-4 ring-yellow-400"
+    : "";
+
   return (
-    <button
-      className="text-9xl font-bold size-36 text-center text-white hover:bg-slate-700 transition-colors duration-200 cursor-pointer"
-      onClick={onClick}
-    >
+    <button className={`${baseClasses} ${winningClasses}`} onClick={onClick}>
       {value}
     </button>
   );
