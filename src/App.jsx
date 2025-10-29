@@ -5,6 +5,7 @@ import { calculateWinner } from "./lib";
 export default function App() {
   const [turn, setTurn] = useState("X"); // "X" is first turn
   const [squares, setSquares] = useState(Array(9).fill(null));
+  const [scores, setScores] = useState({ X: 0, O: 0 });
 
   const hasGameStarted = squares.some((square) => square !== null);
 
@@ -12,11 +13,19 @@ export default function App() {
 
   const isTie = !winner && squares.every((square) => square !== null);
 
+  // Score increments are handled inside the click that causes a win
+
   const handleClick = (index) => {
     if (squares[index] || winner) return; // Ignore click if square is already filled or game is won.
 
     const newSquares = [...squares]; // * No mutation of state!
     newSquares[index] = turn;
+
+    // If this move causes a win, increment the appropriate score
+    const { winner: nextWinner } = calculateWinner(newSquares);
+    if (nextWinner) {
+      setScores((prev) => ({ ...prev, [nextWinner]: prev[nextWinner] + 1 }));
+    }
 
     setSquares(newSquares);
     setTurn(turn === "X" ? "O" : "X");
@@ -41,6 +50,22 @@ export default function App() {
         <header className="text-3xl font-bold text-white">
           {getStatusMessage()}
         </header>
+
+        {/* Scoreboard */}
+        <div className="flex items-center gap-6 text-white">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-1 rounded bg-purple-600 font-bold">X</span>
+            <span className="text-2xl font-semibold" aria-label="X score">
+              {scores.X}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-1 rounded bg-blue-600 font-bold">O</span>
+            <span className="text-2xl font-semibold" aria-label="O score">
+              {scores.O}
+            </span>
+          </div>
+        </div>
 
         <div className="relative grid grid-cols-3 w-fit gap-0">
           {/* Horizontal lines */}
